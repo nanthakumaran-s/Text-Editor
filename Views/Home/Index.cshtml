@@ -3,3 +3,21 @@
 *@
 @{
 }
+<div style="display: flex; align-items:center; justify-content: space-between ">
+    <h1>Hi @ViewBag.name</h1>
+    <a style="text-decoration: none; " class="btn btn-primary" href="/Home/Create">New Doc</a>
+</div>
+
+<hr />
+
+@if(ViewBag.docs.Count == 0)
+{
+    <p>No Doc available</p>
+}
+
+@foreach(var docs in ViewBag.docs) {
+    <h3>@docs.DocName</h3>
+    Content:<br/>
+    @Html.Raw(docs.DocContent)
+    <hr />
+}

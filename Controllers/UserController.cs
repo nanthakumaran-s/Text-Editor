@@ -20,33 +20,71 @@ namespace Text_Editor.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login([Bind("Email,Password")] UserModel userModel)
+        public IActionResult Login(IFormCollection form)
         {
-            Console.Write("Hit");
-            var user = await _context.Users.FindAsync(Request.Form["Email"].ToString());
-            if (user == null)
+            try
             {
-                return BadRequest(new
+                var dbUser = _context.Users.FirstOrDefault(u => u.Email == form["Email"].ToString());
+                if (dbUser == null)
                 {
-                    status = false,
-                    message = "No user found"
-                });
-            }
+                    ViewBag.Error = "No user found";
+                    return View();
+                }
+                if (dbUser.Password!.Equals(form["Password"]))
+                {
+                    ViewBag.Error = "";
+                    HttpContext.Response.Cookies.Append("logged_in", "true");
+                    HttpContext.Response.Cookies.Append("current_user_id", dbUser.Id.ToString());
+                    HttpContext.Response.Cookies.Append("current_user_email", dbUser.Email!);
+                    HttpContext.Response.Cookies.Append("current_user_name", dbUser.Name!);
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    ViewBag.Error = "Username or Password Incorrect";
+                    return View();
+                }
 
-            if (!BCryptUtils.VerifyPassword(Request.Form["Password"].ToString(), user.Password!))
-            {
-                return BadRequest(new
-                {
-                    status = false,
-                    message = "Password not matched"
-                });
             }
-            Response.Redirect("/");
-            return View();
+            catch (Exception e)
+            {
+                ViewBag.Error = "Some error occured";
+                Console.WriteLine(e.Message);
+                return View();
+            }
         }
 
         public IActionResult Register() { 
             return View(); 
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(IFormCollection form)
+        {
+            await Console.Out.WriteLineAsync("Hit");
+            try
+            {
+                UserModel user = new()
+                {
+                    Name = form["Name"].ToString(),
+                    Email = form["Email"].ToString(),
+                    Password = form["Password"].ToString(),
+                };
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+                var dbUser = _context.Users.FirstOrDefault(u => u.Email == user.Email);
+                HttpContext.Response.Cookies.Append("logged_in", "true");
+                HttpContext.Response.Cookies.Append("current_user_id", dbUser.Id.ToString());
+                HttpContext.Response.Cookies.Append("current_user_email", dbUser.Email!);
+                HttpContext.Response.Cookies.Append("current_user_name", dbUser.Name!);
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception e)
+            {
+                ViewBag.Error = "Some error occured";
+                Console.WriteLine(e.Message);
+                return View();
+            }
         }
     }
 }
