@@ -1,0 +1,15 @@
+﻿@model Text_Editor.Models.UserModel
+
+<div style="width: 100%; height: 100%; display: flex; flex-direction:column; align-items: center; justify-content: center">
+    <div style="display: flex; flex-direction: column; margin-top: 8rem" class="px-5 py-6 shadow-sm">
+        <h1>Login</h1>
+        <form method="post" asp-action="Login" style="display: flex; flex-direction: column; width: 500px; margin-top: 1rem; margin-bottom: 1rem">
+            <label asp-for="Email">Email</label>
+            <input asp-for="Email" type="email" name="email" class="form-control mb-3" />
+            <label asp-for="Password" for="password">Password</label>
+            <input asp-for="Password" type="password" name="password" class="form-control" />
+            <input type="button" class="btn btn-danger w-25 mt-3" value="Submit"/>
+        </form>
+        <p style="margin-bottom: 2rem">Not yet a member? <a href="/User/Register">Register</a></p>
+    </div>
+</div>
